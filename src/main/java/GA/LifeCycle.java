@@ -1,6 +1,8 @@
 package GA;
 
 
+import OOGA.GeneCatalog;
+
 import static GA.EvalFunc.*;
 import static GA.GeneManipulation.*;
 import static GA.RandomFunc.*;
@@ -23,15 +25,15 @@ public class LifeCycle {
     // alphabet : list of available genes for any given individual's ADN
     // pmut : probability of mutation for an individual in a population
     // fitnessF : fitness function evaluating an individual
-    public static <T> Tuple<List<List<T>>, List<T>> PopulationStep(
-            List<List<T>> population,
-            List<T> alphabet,
+    public static Tuple<List<List<Object>>, List<Object>> PopulationStep(
+            List<List<Object>> population,
+            GeneCatalog catalog,
             double pmut,
-            Function<List<T>, Double> fitnessF
+            Function<List<Object>, Double> fitnessF
     ){
 
         // local copies
-        population = new ArrayList<>(population);
+        population = new ArrayList<List<Object>>(population);
 
 
         int adnlen = population.get(0).size(); // adn length
@@ -57,11 +59,11 @@ public class LifeCycle {
         population.clear();
         population.add(alpha);
         population.add(beta);
-        population.addAll( RandPopFrom(alphabet, adnlen, poplen-2) );
+        population.addAll( RandPopFrom(catalog, adnlen, poplen-2) );
 
         // mutate population
         population = population.stream()
-                .map( indiv -> Mutate(indiv, pmut, alphabet) )
+                .map( indiv -> Mutate(indiv, pmut, catalog) )
                 .collect(Collectors.toList());
 
         return new Tuple(population, best);
@@ -70,26 +72,26 @@ public class LifeCycle {
 
 
 
-    public static <T> List<T> RunGenerations(
-            List<List<T>> population,
+    public static List<Object> RunGenerations(
+            List<List<Object>> population,
             int steps,
-            List<T> alphabet,
+            GeneCatalog catalog,
             Double pmut,
-            Function<List<T>, Double> fitness
+            Function<List<Object>, Double> fitness
     ) {
 
         // local copy
         population = new ArrayList<>(population);
 
         // most performant indivs
-        List<T> top = null;
-        List<T> best = null;
+        List<Object> top = null;
+        List<Object> best = null;
 
         //var log = Logger.getLogger("RunGenerations");
 
         for (int step = 0; step < steps ; step++) {
 
-            var res = PopulationStep(population, alphabet, pmut, fitness);
+            var res = PopulationStep(population, catalog, pmut, fitness);
 
             // log generation
             //if(step % 1_000 == 0) log.info(String.format("running step %d", step));
@@ -110,19 +112,19 @@ public class LifeCycle {
 
     // Launches evolution environments in multiple cores
     // returns : list of solutions
-    public static <T> List<List<T>> Evolve(
-            List<List<T>> population,
+    public static List<List<Object>> Evolve(
+            List<List<Object>> population,
             Integer steps,
             Integer cores,
             Double pmut,
-            Function<List<T>, Double> fitness,
-            List<T> geneList
+            Function<List<Object>, Double> fitness,
+            GeneCatalog catalog
     ) {
 
         // launch cores
         if (cores > 1) {
 
-            var res = RunInParalell(cores, () -> RunGenerations(population, steps, geneList, pmut, fitness));
+            var res = RunInParalell(cores, () -> RunGenerations(population, steps, catalog, pmut, fitness));
 
             return res.stream()
                     .map( (future) -> {
@@ -139,8 +141,8 @@ public class LifeCycle {
 
         } else {
             //single local process
-            var ret = new ArrayList<List<T>>();
-            ret.add(RunGenerations(population, steps, geneList, pmut, fitness));
+            var ret = new ArrayList<List<Object>>();
+            ret.add(RunGenerations(population, steps, catalog, pmut, fitness));
             return ret;
         }
     }

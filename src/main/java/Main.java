@@ -12,22 +12,27 @@ import static ProblemData.ContainerProblem.totalPrice;
 import static ProblemData.ContainerProblem.totalWeight;
 
 import GA.Runner;
+import OOGA.GeneCatalog;
 import ProblemData.Container;
 import ProblemData.ContainerProblem;
 
 public class Main {
 
     public static void main(String[] args) {
+
         var GeneList = new ArrayList<Container>();
         GeneList.add(new Container("A", 3, 2));
         GeneList.add(new Container("B", 10, 7));
         GeneList.add(new Container("C", 23, 11));
         GeneList.add(new Container("Z", 0, 0));
 
+        var catalog = new GeneCatalog()
+                .addSourceWithSpan(MAX_CONTAINERS, GeneList);
 
-        var initialPop = RandPopFrom(GeneList, MAX_CONTAINERS, 6);
 
-        var results = Evolve(initialPop, STEPS, 8, 0.4, ContainerProblem::Fitness, GeneList);
+        var initialPop = RandPopFrom(catalog, MAX_CONTAINERS, 6);
+
+        var results = Evolve(initialPop, STEPS, 8, 0.4, ContainerProblem::Fitness, catalog);
 
         results.forEach(res -> {
             System.out.printf(

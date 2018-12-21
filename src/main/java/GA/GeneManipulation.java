@@ -1,5 +1,9 @@
 package GA;
 
+import OOGA.GeneCatalog;
+
+import javax.xml.catalog.Catalog;
+
 import static GA.RandomFunc.*;
 
 import java.util.ArrayList;
@@ -13,7 +17,7 @@ public class GeneManipulation {
     // pmut : probability of mutation
     // alphabet : list of new genes available
     // returns : a new mutated individual
-    public static <T> List<T> Mutate(List<T> indiv, double pmut, List<T> alphabet){
+    public static List<Object> Mutate(List<Object> indiv, double pmut, GeneCatalog catalog){
 
         // local copy
         indiv = new ArrayList<>(indiv);
@@ -21,7 +25,7 @@ public class GeneManipulation {
         // only mutate if random event occur
         if( RandDouble() < pmut) {
             int randPoint = RandRangeInt(0, indiv.size()-1);
-            indiv.set(randPoint, RandFrom(alphabet));
+            indiv.set(randPoint, catalog.randForSlot(randPoint));
         }
 
         return indiv;
@@ -32,7 +36,7 @@ public class GeneManipulation {
     // a : list of elements
     // b : list of elements
     // returns : Tuple with the two resulting lists
-    public static <T> Tuple<List<T>, List<T>> Crossover(List<T> a, List<T> b) {
+    public static Tuple<List<Object>, List<Object>> Crossover(List<Object> a, List<Object> b) {
 
         if(a.size() != b.size()) return null; // error reporting by returning null
 
@@ -49,7 +53,7 @@ public class GeneManipulation {
         int cutPoint = RandRangeInt(0, len-1);
 
         // to exchange two parts a third is needed as tmp storage
-        List<T> tmp = new ArrayList<>(a.subList(cutPoint, len));
+        List<Object> tmp = new ArrayList<>(a.subList(cutPoint, len));
 
         a.subList(cutPoint, len).clear(); // clear tail
         a.addAll(cutPoint, b.subList(cutPoint, len)); // append b's tail

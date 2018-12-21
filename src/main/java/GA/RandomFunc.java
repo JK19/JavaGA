@@ -1,9 +1,12 @@
 package GA;
 
+import OOGA.GeneCatalog;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class RandomFunc {
@@ -22,18 +25,23 @@ public class RandomFunc {
     }
 
     public static <T> T RandFrom(List<T> collection) {
-        return collection.get( RandRangeInt(0, collection.size()-1) );
+        try {
+            return collection.get(RandRangeInt(0, collection.size() - 1));
+        } catch (IndexOutOfBoundsException ex){
+            return null;
+        }
     }
 
 
-    public static <T> List<T> RandIndivFrom(List<T> geneList, int nGenes) {
-        return Stream.generate(() -> RandFrom(geneList))
-                .limit(nGenes)
-                .collect(Collectors.toList());
+    public static List<Object> RandIndivFrom(GeneCatalog catalog, int nGenes) {
+        var ret = new ArrayList<Object>();
+        // IntStream.range(0, nGenes).forEach((i) -> ret.add( RandFrom(catalog.getFor(i)) ));
+        IntStream.range(0, nGenes).forEach( i -> ret.add(catalog.randForSlot(i)));
+        return ret;
     }
 
-    public static <T> List<List<T>> RandPopFrom(List<T> geneList, int nGenes, int size) {
-        return Stream.generate(()-> RandIndivFrom(geneList, nGenes))
+    public static List<List<Object>> RandPopFrom(GeneCatalog catalog, int nGenes, int size) {
+        return Stream.generate(()-> RandIndivFrom(catalog, nGenes))
                 .limit(size)
                 .collect(Collectors.toList());
     }

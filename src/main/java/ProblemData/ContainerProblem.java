@@ -8,23 +8,23 @@ public class ContainerProblem {
     public static final int STEPS = 100_000;
     public static final int MAX_CONTAINERS = 30;
 
-    public static Double totalWeight(List<Container> indiv) {
+    public static Double totalWeight(List<Object> indiv) {
         var ret = 0.0;
-        for(Container container : indiv) {
-            ret += container.weight;
+        for(Object container : indiv) {
+            ret += ((Container) container).weight;
         }
         return ret;
     }
 
-    public static Double totalPrice(List<Container> indiv) {
+    public static Double totalPrice(List<Object> indiv) {
         var ret = 0.0;
-        for(Container container : indiv) {
-            ret += container.weight * container.price;
+        for(Object container : indiv) {
+            ret += ((Container) container).weight * ((Container) container).price;
         }
         return ret;
     }
 
-    public static Double Fitness(List<Container> indiv) {
+    public static Double Fitness(List<Object> indiv) {
         var totalw = totalWeight(indiv);
         var totalp = totalPrice(indiv);
 
